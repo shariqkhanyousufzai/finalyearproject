@@ -1,8 +1,9 @@
 /*
 SQLyog Ultimate v11.11 (64 bit)
-MySQL - 5.5.5-10.1.37-MariaDB : Database - furniture_ar
+MySQL - 5.5.27 : Database - furniture_ar
 *********************************************************************
-*/
+*/
+
 
 /*!40101 SET NAMES utf8 */;
 
@@ -12,29 +13,23 @@ MySQL - 5.5.5-10.1.37-MariaDB : Database - furniture_ar
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-CREATE DATABASE /*!32312 IF NOT EXISTS*/`furniture_ar` /*!40100 DEFAULT CHARACTER SET latin1 */;
+/*Table structure for table `admins` */
 
-USE `furniture_ar`;
-
-/*Table structure for table `admin` */
-
-DROP TABLE IF EXISTS `admin`;
-
-CREATE TABLE `admin` (
+CREATE TABLE `admins` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `u_id` int(11) DEFAULT NULL,
+  `u_id` int(11) unsigned NOT NULL,
   `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `first_name` varchar(50) DEFAULT NULL,
   `last_name` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `u_id` (`u_id`),
+  CONSTRAINT `user_id` FOREIGN KEY (`u_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Data for the table `admin` */
+/*Data for the table `admins` */
 
 /*Table structure for table `brands` */
-
-DROP TABLE IF EXISTS `brands`;
 
 CREATE TABLE `brands` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -47,66 +42,66 @@ CREATE TABLE `brands` (
 
 /*Table structure for table `customers` */
 
-DROP TABLE IF EXISTS `customers`;
-
 CREATE TABLE `customers` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `c_id` int(11) DEFAULT NULL,
+  `u_id` int(11) unsigned NOT NULL,
   `name` varchar(50) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `u_id` (`u_id`),
+  CONSTRAINT `user_id_c` FOREIGN KEY (`u_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `customers` */
 
 /*Table structure for table `order_details` */
 
-DROP TABLE IF EXISTS `order_details`;
-
 CREATE TABLE `order_details` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `p_id` int(11) DEFAULT NULL,
+  `p_id` int(11) unsigned NOT NULL,
   `total_item` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `p_id` (`p_id`),
+  CONSTRAINT `products_id` FOREIGN KEY (`p_id`) REFERENCES `products` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `order_details` */
 
 /*Table structure for table `order_items` */
 
-DROP TABLE IF EXISTS `order_items`;
-
 CREATE TABLE `order_items` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `o_id` int(11) DEFAULT NULL,
-  `p_id` int(11) DEFAULT NULL,
+  `o_id` int(11) unsigned NOT NULL,
+  `p_id` int(11) unsigned NOT NULL,
   `name` varchar(50) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `o_id` (`o_id`),
+  KEY `p_id` (`p_id`),
+  CONSTRAINT `order_id_oi` FOREIGN KEY (`o_id`) REFERENCES `orders` (`id`),
+  CONSTRAINT `product_id_oi` FOREIGN KEY (`p_id`) REFERENCES `products` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `order_items` */
 
 /*Table structure for table `orders` */
 
-DROP TABLE IF EXISTS `orders`;
-
 CREATE TABLE `orders` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `c_id` int(11) DEFAULT NULL,
+  `c_id` int(11) unsigned NOT NULL,
   `name` varchar(50) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `c_id` (`c_id`),
+  CONSTRAINT `customer_id` FOREIGN KEY (`c_id`) REFERENCES `customers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `orders` */
 
 /*Table structure for table `payment_type` */
-
-DROP TABLE IF EXISTS `payment_type`;
 
 CREATE TABLE `payment_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -118,22 +113,22 @@ CREATE TABLE `payment_type` (
 
 /*Table structure for table `payments` */
 
-DROP TABLE IF EXISTS `payments`;
-
 CREATE TABLE `payments` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `o_id` int(11) DEFAULT NULL,
-  `pt_id` int(11) DEFAULT NULL,
+  `o_id` int(11) unsigned NOT NULL,
+  `pt_id` int(11) unsigned NOT NULL,
   `date` date DEFAULT NULL,
   `status` int(2) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `o_id` (`o_id`),
+  KEY `pt_id` (`pt_id`),
+  CONSTRAINT `order_id` FOREIGN KEY (`o_id`) REFERENCES `orders` (`id`),
+  CONSTRAINT `payment_type_id` FOREIGN KEY (`pt_id`) REFERENCES `payment_type` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `payments` */
 
 /*Table structure for table `product_categories` */
-
-DROP TABLE IF EXISTS `product_categories`;
 
 CREATE TABLE `product_categories` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -146,76 +141,84 @@ CREATE TABLE `product_categories` (
 
 /*Table structure for table `product_categories_features` */
 
-DROP TABLE IF EXISTS `product_categories_features`;
-
 CREATE TABLE `product_categories_features` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `pc_id` int(11) DEFAULT NULL,
+  `pc_id` int(11) unsigned NOT NULL,
   `name` varchar(50) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
   `type` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `pc_id` (`pc_id`),
+  CONSTRAINT `product_categorie_id` FOREIGN KEY (`pc_id`) REFERENCES `product_categories` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `product_categories_features` */
 
 /*Table structure for table `product_features` */
 
-DROP TABLE IF EXISTS `product_features`;
-
 CREATE TABLE `product_features` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `p_id` int(11) DEFAULT NULL,
-  `pcf_id` int(11) DEFAULT NULL,
+  `p_id` int(11) unsigned NOT NULL,
+  `pcf_id` int(11) unsigned NOT NULL,
   `material` varchar(50) DEFAULT NULL,
   `warranty` varchar(255) DEFAULT NULL,
   `brand` varchar(50) DEFAULT NULL,
   `color` varchar(50) DEFAULT NULL,
   `size` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `width` varchar(255) DEFAULT NULL,
+  `height` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `p_id` (`p_id`),
+  KEY `product_category_feature` (`pcf_id`),
+  CONSTRAINT `product_category_feature_id` FOREIGN KEY (`pcf_id`) REFERENCES `product_categories_features` (`id`),
+  CONSTRAINT `product_feature_id` FOREIGN KEY (`p_id`) REFERENCES `products` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `product_features` */
 
 /*Table structure for table `products` */
 
-DROP TABLE IF EXISTS `products`;
-
 CREATE TABLE `products` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `b_id` int(11) DEFAULT NULL,
-  `pc_id` int(11) DEFAULT NULL,
+  `b_id` int(11) unsigned NOT NULL,
+  `pc_id` int(11) unsigned NOT NULL,
   `name` varchar(50) DEFAULT NULL,
   `quality` varchar(50) DEFAULT NULL,
   `details` varchar(255) DEFAULT NULL,
   `tax` varchar(50) DEFAULT NULL,
   `price` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `image` varchar(255) DEFAULT NULL,
+  `3d_model` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `b_id` (`b_id`),
+  KEY `product_category` (`pc_id`),
+  CONSTRAINT `brand_id` FOREIGN KEY (`b_id`) REFERENCES `brands` (`id`),
+  CONSTRAINT `product_category` FOREIGN KEY (`pc_id`) REFERENCES `product_categories` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `products` */
 
 /*Table structure for table `shop` */
 
-DROP TABLE IF EXISTS `shop`;
-
 CREATE TABLE `shop` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `u_id` int(11) DEFAULT NULL,
-  `b_id` varchar(50) DEFAULT NULL,
+  `u_id` int(11) unsigned NOT NULL,
+  `b_id` int(11) unsigned NOT NULL,
   `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `first_name` varchar(50) DEFAULT NULL,
   `last_name` varchar(50) DEFAULT NULL,
   `s_no` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `u_id` (`u_id`),
+  KEY `b_id` (`b_id`),
+  CONSTRAINT `user_id_s` FOREIGN KEY (`u_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `brand_id_s` FOREIGN KEY (`b_id`) REFERENCES `brands` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `shop` */
 
 /*Table structure for table `users` */
-
-DROP TABLE IF EXISTS `users`;
 
 CREATE TABLE `users` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
